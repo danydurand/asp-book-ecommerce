@@ -1,22 +1,24 @@
 ﻿using BulkyBook.DataAccess;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Configuration;
 
-namespace BulkyBookWeb.Controllers;
+namespace BulkyBookWeb.Areas.Admin.Controllers;
+[Area("Admin")]
 
 public class CategoryController : Controller
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CategoryController(ApplicationDbContext db)
+    public CategoryController(IUnitOfWork unitOfWork)
     {
-        _db = db;
+        _unitOfWork = unitOfWork;
     }
 
     public IActionResult Index()
     {
-        IEnumerable<Category> objCategoryList = _db.Categories;
+        IEnumerable<Category> objCategoryList = _unitOfWork.Category.GetAll();
         return View(objCategoryList);
     }
 
@@ -35,8 +37,8 @@ public class CategoryController : Controller
         }
         if (ModelState.IsValid)
         {
-            _db.Categories.Add(obj);
-            _db.SaveChanges();
+            _unitOfWork.Category.Add(obj);
+            _unitOfWork.Save();
             TempData["success"] = "Category created successfully";
             return RedirectToAction("Index");
         }
@@ -49,8 +51,8 @@ public class CategoryController : Controller
         {
             return NotFound();
         }
-        var obj = _db.Categories.Find(id);
-        if (obj == null )
+        var obj = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
+        if (obj == null)
         {
             return NotFound();
         }
@@ -67,8 +69,8 @@ public class CategoryController : Controller
         }
         if (ModelState.IsValid)
         {
-            _db.Categories.Update(obj);
-            _db.SaveChanges();
+            _unitOfWork.Category.Update(obj);
+            _unitOfWork.Save();
             TempData["success"] = "Category updated successfully";
             return RedirectToAction("Index");
         }
@@ -82,7 +84,7 @@ public class CategoryController : Controller
         {
             return NotFound();
         }
-        var obj = _db.Categories.Find(id);
+        var obj = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
         if (obj == null)
         {
             return NotFound();
@@ -94,8 +96,8 @@ public class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Delete(Category obj)
     {
-        _db.Categories.Remove(obj);
-        _db.SaveChanges();
+        _unitOfWork.Category.Remove(obj);
+        _unitOfWork.Save();
         TempData["success"] = "Category deleted successfully";
         return RedirectToAction("Index");
     }

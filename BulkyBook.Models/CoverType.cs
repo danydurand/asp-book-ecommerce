@@ -2,14 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace BulkyBook.Models;
-public class Category
+public class CoverType
 {
     [Key]
     public int Id { get; set; }
     [Required]
+    [Display(Name="Cover Type")]
+    [MaxLength(50)]
     public string Name { get; set; } = string.Empty;
-    [DisplayName("Display Order")]
-    [Range(1, 50, ErrorMessage = "Display Order must be between 1 and 50.")]
-    public int DisplayOrder { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
